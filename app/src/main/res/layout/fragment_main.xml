@@ -12,11 +12,6 @@
         android:layout_height="wrap_content"
         android:text="Choose Image"
         android:id="@+id/buttonChoose" />
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Click Image"
-        android:id="@+id/buttonChoose1" />
 
 
     <ImageView

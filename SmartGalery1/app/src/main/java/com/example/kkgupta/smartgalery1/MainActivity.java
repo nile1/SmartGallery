@@ -1,5 +1,6 @@
 package com.example.kkgupta.smartgalery1;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -29,6 +31,7 @@ import com.android.volley.toolbox.Volley;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -45,11 +48,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private int PICK_IMAGE_REQUEST = 1;
 
-    private String UPLOAD_URL =" http://17d91a52.ngrok.io/uploads";
+    private String UPLOAD_URL ="http://85af3347.ngrok.io/uploads";
 
     private String KEY_IMAGE = "image";
     private String KEY_NAME = "name";
     protected static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 0;
+    private static final int CAMERA_REQUEST = 1888;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,9 +100,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 new Response.ErrorListener() {
                     @Override
-                    public void onErrorResponse(VolleyError volleyError) {
+                    public void onErrorResponse(VolleyError error) {
                         //Dismissing the progress dialog
                         loading.dismiss();
+                        NetworkResponse errorRes = error.networkResponse;
+                        String stringData = "";
+                        if(errorRes != null && errorRes.data != null){
+                            try {
+                                stringData = new String(errorRes.data,"UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        String sr = "Error : ??"+ stringData;
+                        Toast.makeText(MainActivity.this, sr , Toast.LENGTH_LONG).show();
 
                         //Showing toast
                         //Toast.makeText(MainActivity.this, volleyError.getMessage().toString(), Toast.LENGTH_LONG).show();
@@ -155,11 +170,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         }
+
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+            bitmap = (Bitmap) data.getExtras().get("data");
+            imageView.setImageBitmap(bitmap);
+        }
+
+
+
     }
 
     public void clickPhoto(){
 
-  }
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(cameraIntent, CAMERA_REQUEST);
+
+    }
 
     @Override
     public void onClick(View v) {
@@ -172,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             uploadImage();
             Log.d("msg","----------------------------------------------------------------------------------------------5");
         }
-        if(v == buttonUpload){
+        if(v == buttonChoose1){
             clickPhoto();
             Log.d("msg","----------------------------------------------------------------------------------------------6");
         }
